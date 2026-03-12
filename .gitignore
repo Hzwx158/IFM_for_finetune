@@ -1,0 +1,13 @@
+__pycache__
+*.swn
+*.swo
+*.swp
+*~
+# editor settings
+.idea
+.vscode
+_darcs
+result
+raw_weights
+pretrained_checkpoint
+data

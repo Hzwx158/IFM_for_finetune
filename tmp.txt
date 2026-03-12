@@ -1,0 +1,18 @@
+ 618132 pts/13   Ss+    0:00 -bash
+  12425 pts/3    Ss     0:00 -bash
+3615415 pts/3    S+     0:00  \_ bash run23.sh cnn
+1092912 pts/3    Sl+    0:13      \_ python3 -m torch.distributed.run --nproc_per_node=2 --master_port=12323 main_cnn.py --model resnet50 --batch_size 256 --finetune /inspire/qb-ilm/project/wuliqifa/yanjunchi-24040/hzwx158/adaptformer/pretrained_checkpoint/resnet50.a1_in1k_converted.pth --data_path /inspire/qb-ilm/project/wuliqifa/yanjunchi-24040/hzwx158/adaptformer/data --output_dir /inspire/qb-ilm/project/wuliqifa/yanjunchi-24040/hzwx158/adaptformer/result/food101_expand_blr_0.01/resnet50.a1_in1k_converted --blr 0.01 --dataset food101 --mask_dict /inspire/qb-ilm/project/wuliqifa/yanjunchi-24040/hzwx158/adaptformer/pretrained_checkpoint/resnet50.a1_in1k_converted_mask_dict_0.8_no_qk.pth --expand 1
+  11861 pts/2    Ss     0:00 -bash
+1327347 pts/2    R+     0:00  \_ ps -hf
+1644304 pts/15   Ss     0:00 /bin/bash --init-file /etc/inspire/code-server-bak-001/lib/vscode/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh
+1644420 pts/15   S+     0:00  \_ tmux attach -t hzw
+ 563229 pts/12   Ss     0:00 /bin/bash --init-file /etc/inspire/code-server-bak-001/lib/vscode/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh
+ 563291 pts/12   S+     0:00  \_ tmux attach -t hzw
+3818270 pts/10   Ss     0:00 /bin/bash --init-file /etc/inspire/code-server-bak-001/lib/vscode/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh
+3818414 pts/10   S+     0:00  \_ tmux attach -t hzw
+2084290 pts/8    Ss     0:00 /bin/bash --init-file /etc/inspire/code-server-bak-001/lib/vscode/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh
+2087906 pts/8    S+     0:00  \_ tmux attach -t hzw
+1928887 pts/6    Ss     0:00 /bin/bash --init-file /etc/inspire/code-server-bak-001/lib/vscode/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh
+1929168 pts/6    S+     0:00  \_ tmux attach -t hzw
+  11797 pts/1    Ss     0:00 /bin/bash --init-file /etc/inspire/code-server-bak-001/lib/vscode/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh
+  11858 pts/1    S+     0:00  \_ tmux new -s hzw
