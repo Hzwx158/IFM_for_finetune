@@ -11,6 +11,7 @@ result
 raw_weights
 pretrained_checkpoint
 data
-run*.sh
+run01.sh
+run23.sh
 log.txt
 tmp.txt
