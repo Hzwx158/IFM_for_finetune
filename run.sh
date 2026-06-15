@@ -18,6 +18,8 @@ DATASETS=(
     "food101"
 )
 
+beta=0.9
+
 function merge(){
     echo -e "Merged\nModel: $MERGED\nDataset: $dataset"
     CUDA_VISIBLE_DEVICES=$DEVICES python3 -m torch.distributed.run \
@@ -28,7 +30,7 @@ function merge(){
         --batch_size 256 --cls_token \
         --finetune "$CWD/pretrained_checkpoint/${MERGED}.pth" \
         --dist_eval --data_path $CWD/data \
-        --output_dir $CWD/result/${dataset}_merge_before_tune_0.99_blr_0.01/$MERGED  \
+        --output_dir $CWD/result/${dataset}_merge_before_tune_${beta}_blr_0.01/$MERGED  \
         --drop_path 0.0  --blr 0.01 \
         --dataset $dataset \
         --fulltune --merge_before_finetune \
@@ -59,7 +61,7 @@ function merge_and_ffn(){
         --batch_size 256 --cls_token \
         --finetune "$CWD/pretrained_checkpoint/${MERGED}.pth" \
         --dist_eval --data_path $CWD/data \
-        --output_dir $CWD/result/${dataset}_merge_before_tune_0.99_ffn_blr_0.01/$MERGED  \
+        --output_dir $CWD/result/${dataset}_merge_before_tune_${beta}_ffn_blr_0.01/$MERGED  \
         --drop_path 0.0  --blr 0.01 \
         --dataset $dataset \
         --fulltune --merge_before_finetune \
@@ -121,7 +123,7 @@ function merge_cnn(){
         --batch_size 256 \
         --finetune "$CWD/pretrained_checkpoint/${MERGED}.pth" \
         --data_path $CWD/data \
-        --output_dir $CWD/result/${dataset}_merge_before_tune_0.8_blr_0.01/$MERGED  \
+        --output_dir $CWD/result/${dataset}_merge_before_tune_${beta}_blr_0.01/$MERGED  \
         --blr 0.01 \
         --dataset $dataset \
         --merge_before_finetune \
@@ -177,12 +179,12 @@ for MODEL_PRETRAINED in ${MODELS[@]}
 do
     if [[ $MODEL_PRETRAINED =~ "resnet" ]]; then
         CONVERTED="${MODEL_PRETRAINED}_converted"
-        MERGED="${CONVERTED}_merge_0.99_no_qk"
-        MASK="${CONVERTED}_mask_dict_0.99_no_qk"
+        MERGED="${CONVERTED}_merge_${beta}_no_qk"
+        MASK="${CONVERTED}_mask_dict_${beta}_no_qk"
     else
         CONVERTED="${MODEL_PRETRAINED}_converted"
-        MERGED="${CONVERTED}_merge_0.99_no_qk"
-        MASK="${CONVERTED}_mask_dict_0.99_no_qk"
+        MERGED="${CONVERTED}_merge_${beta}_no_qk"
+        MASK="${CONVERTED}_mask_dict_${beta}_no_qk"
     fi
 
     for dataset in ${DATASETS[@]} 
