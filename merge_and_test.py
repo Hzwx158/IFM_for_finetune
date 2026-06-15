@@ -572,12 +572,26 @@ def merge_save(
         raise ValueError("Unknown setting")
     n = Path(ckpt_path).name
     n = n[:n.rfind(".")]
-    torch.save(mask_dict, os.path.join(save_path, f"{n}_mask_dict_{threshold}{suffix}.pth"))
+    save_path = Path(save_path)
+    torch.save(mask_dict, str(save_path/f"{n}_mask_dict_{threshold}{suffix}.pth"))
     # saved_file = os.path.join(save_path, f"mae_pretrain_vit_b_merge_{threshold}{suffix}.pth")
-    saved_file = str(Path(save_path) / f"{n}_merge_{threshold}{suffix}.pth")
+    saved_file = str(save_path / f"{n}_merge_{threshold}{suffix}.pth")
     torch.save(checkpoint_model, saved_file)
     print(f"Saved to {saved_file}")
     
+    record_file = save_path / "record.json"
+    if not record_file.exists():
+        with open(record_file, "w") as f:
+            f.write("{}\n")
+    with open(record_file, "r") as f:
+        record = json.load(f)
+    record[f"{n}_merge_{threshold}{suffix}"] = {
+        "time": tock - tick,
+        "cutoff": total_cutoff_num,
+    }
+    with open(record_file, "w") as f:
+        json.dump(record, f)
+
 
 if __name__ == '__main__':
     #load_and_merge("/home/ma-user/modelarts/work/ytchen/LowRankOptim/AdaptFormer-main/result/cifar100_fulltune/checkpoint-99.pth")
@@ -585,11 +599,12 @@ if __name__ == '__main__':
     
     PRETRAINED_DIR = Path(__file__).parent/"pretrained_checkpoint/"
     pretrained_name = os.environ["MODEL_PRETRAINED"]
+    threshold=0.7
     if('resnet' in pretrained_name):
         merge_save(
             str(PRETRAINED_DIR/f"{pretrained_name}_converted.pth"),
             str(PRETRAINED_DIR),
-            threshold=0.99, merge_qk=False,
+            threshold=threshold, merge_qk=False,
             merge_cnn=True,
         )
     else:
@@ -603,6 +618,6 @@ if __name__ == '__main__':
             # str(PRETRAINED_DIR/"mae_pretrain_vit_b.pth"), 
             str(PRETRAINED_DIR/f"{pretrained_name}_converted.pth"),
             str(PRETRAINED_DIR), 
-            threshold=0.99, merge_qk=False, 
+            threshold=threshold, merge_qk=False, 
             **model_args
         )
