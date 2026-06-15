@@ -93,6 +93,12 @@ def main(args):
     args.distributed = not args.not_distributed
     misc.init_distributed_mode(args)
     device = torch.device(args.device)
+    
+    # fix the seed for reproducibility
+    seed = args.seed + misc.get_rank()
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+
     cudnn.benchmark = True
 
     # 1. 构建数据集
@@ -209,10 +215,10 @@ def main(args):
         momentum=0.9
     )
     
-    print_parameter_stats(
-        model=model_without_ddp,
-        result_dir=Path(args.output_dir),
-    )
+    # print_parameter_stats(
+    #     model=model_without_ddp,
+    #     result_dir=Path(args.output_dir),
+    # )
     
     print(optimizer)
     loss_scaler = NativeScaler()
@@ -260,6 +266,13 @@ def main(args):
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
     print('Training time {}'.format(total_time_str))
+    if args.output_dir and misc.is_main_process():
+        final_msg = dict(
+            seed=args.seed,
+            train_time=total_time_str,
+        )
+        with open(os.path.join(args.output_dir, "log.txt"), mode="a", encoding="utf-8") as f:
+            f.write(json.dumps(final_msg) + "\n")
 
 if __name__ == '__main__':
     args = get_args_parser()

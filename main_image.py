@@ -31,7 +31,9 @@ from engine_finetune import train_one_epoch, evaluate
 import models.vit_image as vit_image
 from pathlib import Path
 
-def print_parameter_stats(model:torch.nn.Module, result_dir:Path, mask_dict=None):
+def print_parameter_stats(model:torch.nn.Module, result_dir:Path, mask_dict=None, activate=False):
+    if not activate:
+        return
     if mask_dict is None:
         trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     else:
@@ -41,13 +43,20 @@ def print_parameter_stats(model:torch.nn.Module, result_dir:Path, mask_dict=None
             if p.requires_grad and (mask_dict.get(name, None) is not None))
     total_params = sum(p.numel() for p in model.parameters())
     if misc.is_main_process():
+        info = dict(
+            total_parameters = total_params,
+            trainable_parameters = trainable_params,
+            non_trainable_parameters = total_params - trainable_params,
+            trainable_ratio = 100 * trainable_params / total_params
+        )
         with open(result_dir / "trainable_args.txt", "w") as f:
-            f.write("-" * 30 + '\n')
-            f.write(f"Total Parameters: {total_params:,}\n")
-            f.write(f"Trainable Parameters: {trainable_params:,}\n")
-            f.write(f"Non-trainable Parameters: {total_params - trainable_params:,}\n")
-            f.write(f"Trainable Ratio: {100 * trainable_params / total_params:.4f}%\n")
-            f.write("-" * 30)
+            f.write(json.dumps(info))
+            # f.write("-" * 30 + '\n')
+            # f.write(f"Total Parameters: {total_params:,}\n")
+            # f.write(f"Trainable Parameters: {trainable_params:,}\n")
+            # f.write(f"Non-trainable Parameters: {total_params - trainable_params:,}\n")
+            # f.write(f"Trainable Ratio: {100 * trainable_params / total_params:.4f}%\n")
+            # f.write("-" * 30)
         print("Write!")#, input()
     exit(0)
 
@@ -239,7 +248,8 @@ def main(args):
             drop_path_rate=args.drop_path,
             tuning_config=tuning_config,
         )
-        print(model)
+        if misc.is_main_process():
+            print(type(model))
     # elif 'resnet' in args.model:
     #     # 直接用 timm 加载，不需要自定义类
     #     model = timm.create_model(args.model, num_classes=args.nb_classes, pretrained=False)
@@ -356,6 +366,7 @@ def main(args):
         model=model_without_ddp,
         result_dir=Path(args.output_dir),
         mask_dict=mask_dict if args.merge_before_finetune else None,
+        activate=False,
     )
 
     criterion = torch.nn.CrossEntropyLoss()
@@ -417,6 +428,13 @@ def main(args):
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
     print('Training time {}'.format(total_time_str))
+    if args.output_dir and misc.is_main_process():
+        final_msg = dict(
+            seed=args.seed,
+            train_time=total_time_str,
+        )
+        with open(os.path.join(args.output_dir, "log.txt"), mode="a", encoding="utf-8") as f:
+            f.write(json.dumps(final_msg) + "\n")
 
 
 if __name__ == '__main__':

@@ -7,11 +7,14 @@ __pycache__
 .idea
 .vscode
 _darcs
-result
+result/cifar100*
+result/food101*
+result/svhn*
 raw_weights
 pretrained_checkpoint
 data
-run01.sh
-run23.sh
+run01*.sh
+run23*.sh
 log.txt
 tmp.txt
+_history*
